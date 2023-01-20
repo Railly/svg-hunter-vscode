@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
-import { getNonce } from "./utils";
+import { getNonce, suggestName } from "./utils.js";
+import svgPornJsonParsed from "./data/svg-porn-parsed.json" assert { type: "json" };
 
 export class SvgHunterProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = "svg-hunter";
@@ -60,6 +61,59 @@ export class SvgHunterProvider implements vscode.WebviewViewProvider {
         vscode.ViewColumn.One
       );
     }
+  }
+
+  // show an input box to the user to put tha name of the icon to search
+  public async searchIcon() {
+    const quickPick = vscode.window.createQuickPick();
+    quickPick.items = [
+      {
+        label: "Open SVG Hunter",
+        description: "Open SVG Hunter",
+      },
+    ];
+    quickPick.onDidChangeSelection(async (selection) => {
+      if (selection[0].label === "Open SVG Hunter") {
+        const name = await vscode.window.showInputBox({
+          prompt: "Enter the name of the icon to search",
+        });
+
+        const suggested = suggestName({
+          name: name || "",
+          files: svgPornJsonParsed,
+        });
+
+        const quickPick = vscode.window.createQuickPick();
+        if (typeof suggested !== "string") {
+          quickPick.items = suggested
+            .map((item) => {
+              const label = Object.keys(item)[0];
+              return item[label].map((item) => {
+                return {
+                  label,
+                  description: item,
+                };
+              });
+            })
+            .flat();
+        } else {
+          quickPick.items = [
+            {
+              label: suggested,
+              description: suggested,
+            },
+          ];
+        }
+        quickPick.onDidChangeSelection((selection) => {
+          // only log the selected item
+          console.log({ selection });
+          console.log(selection[0].description);
+        });
+        quickPick.show();
+      }
+    });
+
+    quickPick.show();
   }
 
   private _getHtmlForWebview(webview: vscode.Webview) {

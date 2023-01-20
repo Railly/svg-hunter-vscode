@@ -1,4 +1,6 @@
-import { request } from "node:https";
+import memoize from "lodash.memoize";
+import leven from "leven";
+import svgPornJsonParsed from "./data/svg-porn-parsed.json" assert { type: "json" };
 
 export function getNonce() {
   let text = "";
@@ -10,39 +12,33 @@ export function getNonce() {
   return text;
 }
 
-type TSvgProvider = "svg-porn";
+const match = memoize((str: string, name: string) =>
+  leven(str.toLowerCase(), name.toLowerCase())
+);
 
-export function getLatestSVGs(provider: TSvgProvider) {
-  switch (provider) {
-    case "svg-porn":
-      return new Promise((resolve, reject) => {
-        const options = {
-          host: "https://api.github.com/",
-          path: "/repos/gilbarbara/logos/contents/logos.json?ref=main",
-          method: "GET",
-        };
+export function suggestName({
+  name,
+  files,
+}: {
+  name: string;
+  files: Array<{ [key: string]: string[] }>;
+}) {
+  const isFile = files.hasOwnProperty(name);
 
-        const req = request(options, (res) => {
-          let data = "";
-          res.on("data", (chunk) => {
-            data += chunk;
-          });
-          res.on("end", () => {
-            try {
-              const svgs = JSON.parse(data);
-              resolve(svgs);
-            } catch (err) {
-              reject(err);
-            }
-          });
-        });
-
-        req.on("error", (err) => {
-          console.log("Error: " + err.message);
-          reject(err);
-        });
-
-        req.end();
-      });
+  if (isFile) {
+    return name;
   }
+
+  const nameRegExp = new RegExp(name, "i");
+
+  return files
+    .filter((k) => nameRegExp.test(Object.keys(k)[0]))
+    .sort(
+      (a, b) => match(Object.keys(a)[0], name) - match(Object.keys(b)[0], name)
+    );
 }
+
+suggestName({
+  name: "ver",
+  files: svgPornJsonParsed as any,
+});

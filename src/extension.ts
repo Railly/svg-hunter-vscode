@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { SvgHunterProvider } from "./provider";
+import { SvgHunterProvider } from "./provider.js";
 
 export function activate(context: vscode.ExtensionContext) {
   const provider = new SvgHunterProvider(context.extensionUri);
@@ -10,7 +10,6 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  // with createQuickPick
   context.subscriptions.push(
     vscode.commands.registerCommand("svg-hunter.openViewWithQuickPick", () => {
       const quickPick = vscode.window.createQuickPick();
@@ -26,6 +25,12 @@ export function activate(context: vscode.ExtensionContext) {
         }
       });
       quickPick.show();
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("svg-hunter.searchIcon", () => {
+      provider.searchIcon();
     })
   );
 }

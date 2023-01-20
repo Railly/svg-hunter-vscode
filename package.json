@@ -1,5 +1,6 @@
 {
   "name": "svg-hunter",
+  "type": "module",
   "displayName": "svg-hunter",
   "description": "Hunt SVGs inside your code editor",
   "version": "0.0.1",
@@ -11,43 +12,55 @@
   ],
   "activationEvents": [
     "onCommand:svg-hunter.openView",
-    "onCommand:svg-hunter.openViewWithQuickPick"
+    "onCommand:svg-hunter.openViewWithQuickPick",
+    "onCommand:svg-hunter.searchIcon"
   ],
   "main": "./out/extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "svg-hunter.openView",
-				"category": "SVG Hunter",
-				"title": "Open view"
-			},
+  "contributes": {
+    "commands": [
+      {
+        "command": "svg-hunter.openView",
+        "category": "SVG Hunter",
+        "title": "Open view"
+      },
       {
         "command": "svg-hunter.openViewWithQuickPick",
         "category": "SVG Hunter",
         "title": "Open view with quick pick"
+      },
+      {
+        "command": "svg-hunter.searchIcon",
+        "category": "SVG Hunter",
+        "title": "Search icon"
       }
-		]
-	},
+    ]
+  },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "fetch-icons": "bash ./scripts/get-icons.sh"
+    "update-data": "bash ./scripts/update-data.sh",
+    "vscode:prepublish": "npm run update-data && npm run compile"
   },
   "devDependencies": {
-    "@types/vscode": "^1.74.0",
     "@types/glob": "^8.0.0",
+    "@types/leven": "^2.1.2",
+    "@types/lodash.memoize": "^4.1.7",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
+    "@types/vscode": "^1.74.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
+    "@vscode/test-electron": "^2.2.0",
     "eslint": "^8.28.0",
     "glob": "^8.0.3",
     "mocha": "^10.1.0",
-    "typescript": "^4.9.3",
-    "@vscode/test-electron": "^2.2.0"
+    "typescript": "^4.9.3"
+  },
+  "dependencies": {
+    "leven": "^4.0.0",
+    "lodash.memoize": "^4.1.2"
   }
 }
