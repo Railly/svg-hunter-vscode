@@ -1,4 +1,6 @@
-[
+/* eslint-disable @typescript-eslint/naming-convention */
+//@ts-nocheck
+export const parsedSvgPorn = [
   {
     " Brain.js": [
       "brainjs.svg"
@@ -6799,4 +6801,4 @@
       "zulip.svg"
     ]
   }
-]
+] as Array<{ [key: string]: string[] }>;

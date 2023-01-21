@@ -1,9 +1,9 @@
-import fs from "node:fs";
-import svgPornJson from "./data/svg-porn.json" assert { type: "json" };
+import { writeFileSync } from "node:fs";
+import { rawSvgPorn } from "./data/svg-porn";
 
 interface ISvgPornJson {
   name: string;
-  shortName: string;
+  shortname: string;
   url: string;
   files: string[];
 }
@@ -15,10 +15,17 @@ const parseSvgPornJson = (json: Array<ISvgPornJson>) => {
     };
   });
 
-  fs.writeFileSync(
-    "./src/data/svg-porn-parsed.json",
-    JSON.stringify(svgPornJson, null, 2)
+  writeFileSync(
+    "./src/data/svg-porn-parsed.ts",
+    `/* eslint-disable @typescript-eslint/naming-convention */
+//@ts-nocheck
+export const parsedSvgPorn = ${JSON.stringify(
+      svgPornJson,
+      null,
+      2
+    )} as Array<{ [key: string]: string[] }>;
+`
   );
 };
 
-parseSvgPornJson(svgPornJson as any);
+parseSvgPornJson(rawSvgPorn);

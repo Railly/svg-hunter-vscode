@@ -1,6 +1,5 @@
-import memoize from "lodash.memoize";
-import leven from "leven";
-import svgPornJsonParsed from "./data/svg-porn-parsed.json" assert { type: "json" };
+import memoize = require("lodash.memoize");
+import { parsedSvgPorn } from "./data/svg-porn-parsed";
 
 export function getNonce() {
   let text = "";
@@ -12,8 +11,125 @@ export function getNonce() {
   return text;
 }
 
-const match = memoize((str: string, name: string) =>
-  leven(str.toLowerCase(), name.toLowerCase())
+export const getPascalCasedName = (name: string) => {
+  const cleanName = name.replace(".svg", "").replace("-icon", "");
+  const camelCasedName = cleanName
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join("");
+
+  return camelCasedName;
+};
+
+export const addNewLineAfterSemi = (str: string) => {
+  return str.slice(0, -1).replace(
+    /;/g,
+    `;
+`
+  );
+};
+
+export const deleteFirstAndLastLine = (str: string) => {
+  return str
+    .split(
+      `
+`
+    )
+    .slice(2, -3).join(`
+`);
+};
+
+export const deletePropsWithCurlyBrackets = (str: string) => {
+  return str.replace(/{.*}/, "");
+};
+
+const array: number[] = [];
+const characterCodeCache: number[] = [];
+
+/*
+ * leven function extracted from https://github.com/sindresorhus/leven
+ */
+
+export const leven = (first: string, second: string) => {
+  if (first === second) {
+    return 0;
+  }
+
+  const swap = first;
+
+  if (first.length > second.length) {
+    first = second;
+    second = swap;
+  }
+
+  let firstLength = first.length;
+  let secondLength = second.length;
+
+  while (
+    firstLength > 0 &&
+    first.charCodeAt(~-firstLength) === second.charCodeAt(~-secondLength)
+  ) {
+    firstLength--;
+    secondLength--;
+  }
+
+  let start = 0;
+
+  while (
+    start < firstLength &&
+    first.charCodeAt(start) === second.charCodeAt(start)
+  ) {
+    start++;
+  }
+
+  firstLength -= start;
+  secondLength -= start;
+
+  if (firstLength === 0) {
+    return secondLength;
+  }
+
+  let bCharacterCode;
+  let result;
+  let temporary;
+  let temporary2;
+  let index = 0;
+  let index2 = 0;
+
+  while (index < firstLength) {
+    characterCodeCache[index] = first.charCodeAt(start + index);
+    array[index] = ++index;
+  }
+
+  while (index2 < secondLength) {
+    bCharacterCode = second.charCodeAt(start + index2);
+    temporary = index2++;
+    result = index2;
+
+    for (index = 0; index < firstLength; index++) {
+      temporary2 =
+        bCharacterCode === characterCodeCache[index]
+          ? temporary
+          : temporary + 1;
+      temporary = array[index];
+      // eslint-disable-next-line no-multi-assign
+      result = array[index] =
+        temporary > result
+          ? temporary2 > result
+            ? result + 1
+            : temporary2
+          : temporary2 > temporary
+          ? temporary + 1
+          : temporary2;
+    }
+  }
+
+  return result;
+};
+
+const match = memoize(
+  (str: string, name: string) =>
+    leven(str.toLowerCase(), name.toLowerCase()) || 0
 );
 
 export function suggestName({
@@ -40,5 +156,5 @@ export function suggestName({
 
 suggestName({
   name: "ver",
-  files: svgPornJsonParsed as any,
+  files: parsedSvgPorn,
 });
