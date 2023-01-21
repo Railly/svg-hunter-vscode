@@ -1,15 +1,21 @@
 import * as vscode from "vscode";
+import axios from "axios";
+import { transform } from "@svgr/core";
 import { parsedSvgPorn } from "./data/svg-porn-parsed";
+import {
+  SVG_PORN,
+  SVG_PORN_URL,
+  externalProviders,
+  sources,
+} from "./data/providers";
 import {
   addNewLineAfterSemi,
   deleteFirstAndLastLine,
   deletePropsWithCurlyBrackets,
-  getNonce,
   getPascalCasedName,
+  getStringAfterLastSlash,
   suggestName,
 } from "./utils";
-import axios from "axios";
-import { transform } from "@svgr/core";
 
 export class SvgHunterProvider {
   public static readonly viewType = "svg-hunter";
@@ -17,62 +23,149 @@ export class SvgHunterProvider {
 
   constructor(private readonly _extensionUri: vscode.Uri) {}
 
-  public async handleWithProvider(callback: (selection: any) => void) {
-    const quickPick = vscode.window.createQuickPick();
-    quickPick.placeholder = "Select a provider";
-
-    quickPick.items = [
-      {
-        label: "SVG Porn",
-        description: "Tech logos",
-      },
-    ];
-    quickPick.onDidChangeSelection(async (selection) => {
-      if (selection[0].label === "SVG Porn") {
-        const name = await vscode.window.showInputBox({
-          prompt: "Enter the name of the icon",
-        });
-
-        const suggested = suggestName({
-          name: name || "",
-          files: parsedSvgPorn,
-        });
-
-        const quickPick = vscode.window.createQuickPick();
-        if (typeof suggested !== "string") {
-          quickPick.items = suggested
-            .map((item) => {
-              const label = Object.keys(item)[0];
-              return item[label].map((item) => {
-                return {
-                  label,
-                  description: item,
-                };
-              });
-            })
-            .flat();
-        } else {
-          quickPick.items = [
-            {
-              label: suggested,
-              description: suggested,
-            },
-          ];
-        }
-        quickPick.onDidChangeSelection(callback);
-        quickPick.show();
-      }
+  private async handleSvgExternalProvider({
+    callback,
+    svgData,
+    url,
+  }: {
+    callback: (selection: any, svgRes: Promise<string>) => void;
+    svgData: any;
+    url: string;
+  }) {
+    const name = await vscode.window.showInputBox({
+      prompt: "Enter the name of the icon",
     });
 
-    quickPick.show();
-  }
+    const suggested = suggestName({
+      name: name || "",
+      files: svgData,
+    });
 
-  public async insertSvgHtml() {
-    this.handleWithProvider((selection) => {
+    const quickPick = vscode.window.createQuickPick();
+    if (typeof suggested !== "string") {
+      quickPick.items = suggested
+        .map((item) => {
+          const description = Object.keys(item)[0];
+          return item[description].map((item) => {
+            return {
+              label: item,
+              description,
+            };
+          });
+        })
+        .flat();
+    } else {
+      quickPick.items = [
+        {
+          label: suggested,
+          description: suggested,
+        },
+      ];
+    }
+
+    quickPick.onDidChangeSelection((selection) => {
       if (!selection[0].description) {
         return;
       }
-      const svgRes = this.getSvgPornSvg(selection[0].description);
+      const svgRes = this.getSvg({
+        name: selection[0].description,
+        url,
+      });
+
+      callback(selection, svgRes);
+    });
+    quickPick.show();
+  }
+
+  public async handleWithProvider(
+    callback: (
+      selection: readonly vscode.QuickPickItem[],
+      svgRes: Promise<string>
+    ) => void
+  ) {
+    const quickPick = vscode.window.createQuickPick();
+    quickPick.placeholder = "Select a source";
+    quickPick.items = sources;
+
+    quickPick.onDidChangeSelection(async (selection) => {
+      if (selection[0].label === "External Provider") {
+        const subQuickPick = vscode.window.createQuickPick();
+        subQuickPick.placeholder = "Select a external provider";
+        subQuickPick.items = externalProviders;
+
+        subQuickPick.onDidChangeSelection(async (subSelection) => {
+          switch (subSelection[0].label) {
+            case SVG_PORN:
+              this.handleSvgExternalProvider({
+                callback,
+                svgData: parsedSvgPorn,
+                url: SVG_PORN_URL,
+              });
+              break;
+            default:
+              break;
+          }
+        });
+
+        subQuickPick.show();
+      }
+
+      if (selection[0].label === "Local Files") {
+        const files = await vscode.workspace.findFiles(
+          "**/*.svg",
+          "**/node_modules/**"
+        );
+        const subQuickPick = vscode.window.createQuickPick();
+        subQuickPick.items = files.map((file) => {
+          // const workspacePath =
+          //   vscode.workspace.getWorkspaceFolder(file)?.uri.path || "";
+          // const hasMoreThanOneWorkspace =
+          //   vscode.workspace.workspaceFolders?.length > 1;
+          return {
+            label: getStringAfterLastSlash(file.path),
+            description: file.path,
+          };
+        });
+        subQuickPick.onDidChangeSelection((selection) => {
+          const fileContent = vscode.workspace.fs
+            .readFile(vscode.Uri.file(selection[0].description))
+            .then((buffer) => {
+              return buffer.toString();
+            });
+          console.log({ fileContent });
+          callback(selection, Promise.resolve(fileContent));
+        });
+        subQuickPick.show();
+      }
+    });
+    quickPick.show();
+  }
+
+  private getSvg({
+    name,
+    url,
+  }: {
+    name: string;
+    url: string;
+  }): Promise<string> {
+    console.log({
+      url,
+      name,
+    });
+    return new Promise((resolve, reject) => {
+      axios
+        .get(`${url}/${name}`)
+        .then((response) => {
+          resolve(response.data);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  }
+
+  public async insertSvgHtml() {
+    this.handleWithProvider((selection: any, svgRes) => {
       svgRes.then((svgCode) => {
         vscode.window.activeTextEditor?.insertSnippet(
           new vscode.SnippetString(svgCode)
@@ -82,12 +175,8 @@ export class SvgHunterProvider {
   }
 
   public async insertRawJsxSvg() {
-    this.handleWithProvider((selection) => {
-      if (!selection[0].description) {
-        return;
-      }
-      const svgRes = this.getSvgPornSvg(selection[0].description);
-      const pascalCasedName = getPascalCasedName(selection[0].description);
+    this.handleWithProvider((selection: any, svgRes: Promise<string>) => {
+      const pascalCasedName = getPascalCasedName(selection[0].label);
       svgRes.then((svgCode) => {
         transform(
           svgCode,
@@ -112,12 +201,8 @@ export class SvgHunterProvider {
   }
 
   public async createJsxSvgComponent() {
-    this.handleWithProvider((selection) => {
-      if (!selection[0].description) {
-        return;
-      }
-      const svgRes = this.getSvgPornSvg(selection[0].description);
-      const pascalCasedName = getPascalCasedName(selection[0].description);
+    this.handleWithProvider((selection: any, svgRes: Promise<string>) => {
+      const pascalCasedName = getPascalCasedName(selection[0].label);
       svgRes.then((svgCode) => {
         transform(
           svgCode,
@@ -136,19 +221,6 @@ export class SvgHunterProvider {
           );
         });
       });
-    });
-  }
-
-  private getSvgPornSvg(name: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      axios
-        .get(`https://cdn.svgporn.com/logos/${name}`)
-        .then((response) => {
-          resolve(response.data);
-        })
-        .catch((error) => {
-          reject(error);
-        });
     });
   }
 }

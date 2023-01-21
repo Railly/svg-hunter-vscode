@@ -3,7 +3,7 @@
   "displayName": "SVG Hunter",
   "publisher": "RaillyHugo",
   "description": "Hunt SVGs without leaving your code editor",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.70.0"
   },
@@ -62,7 +62,9 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
     "update": "bash ./scripts/update.sh",
-    "prepublish": "npm run update && npm run compile && node ./out/transform-data.js"
+    "vscode:prepublish": "npm run update && npm run compile && npm run esbuild-base -- --minify && node ./out/transform-data.js",
+    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
+    "esbuild": "npm run esbuild-base -- --sourcemap"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.0",
@@ -77,6 +79,7 @@
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "@vscode/test-electron": "^2.2.0",
+    "esbuild": "^0.17.3",
     "eslint": "^8.28.0",
     "glob": "^8.0.3",
     "mocha": "^10.1.0",

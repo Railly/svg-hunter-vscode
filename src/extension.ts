@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { SvgHunterProvider } from "./provider.js";
+import { SvgHunterProvider } from "./provider";
 
 export function activate(context: vscode.ExtensionContext) {
   const provider = new SvgHunterProvider(context.extensionUri);

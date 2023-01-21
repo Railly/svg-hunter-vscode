@@ -1,16 +1,6 @@
 import memoize = require("lodash.memoize");
 import { parsedSvgPorn } from "./data/svg-porn-parsed";
 
-export function getNonce() {
-  let text = "";
-  const possible =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (let i = 0; i < 32; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
-}
-
 export const getPascalCasedName = (name: string) => {
   const cleanName = name.replace(".svg", "").replace("-icon", "");
   const camelCasedName = cleanName
@@ -42,6 +32,37 @@ export const deleteFirstAndLastLine = (str: string) => {
 export const deletePropsWithCurlyBrackets = (str: string) => {
   return str.replace(/{.*}/, "");
 };
+
+export const getStringAfterLastSlash = (url: string) => {
+  return url.split("/").pop();
+};
+
+const match = memoize(
+  (str: string, name: string) =>
+    leven(str.toLowerCase(), name.toLowerCase()) || 0
+);
+
+export function suggestName({
+  name,
+  files,
+}: {
+  name: string;
+  files: Array<{ [key: string]: string[] }>;
+}) {
+  const isFile = files.hasOwnProperty(name);
+
+  if (isFile) {
+    return name;
+  }
+
+  const nameRegExp = new RegExp(name, "i");
+
+  return files
+    .filter((k) => nameRegExp.test(Object.keys(k)[0]))
+    .sort(
+      (a, b) => match(Object.keys(a)[0], name) - match(Object.keys(b)[0], name)
+    );
+}
 
 const array: number[] = [];
 const characterCodeCache: number[] = [];
@@ -126,35 +147,3 @@ export const leven = (first: string, second: string) => {
 
   return result;
 };
-
-const match = memoize(
-  (str: string, name: string) =>
-    leven(str.toLowerCase(), name.toLowerCase()) || 0
-);
-
-export function suggestName({
-  name,
-  files,
-}: {
-  name: string;
-  files: Array<{ [key: string]: string[] }>;
-}) {
-  const isFile = files.hasOwnProperty(name);
-
-  if (isFile) {
-    return name;
-  }
-
-  const nameRegExp = new RegExp(name, "i");
-
-  return files
-    .filter((k) => nameRegExp.test(Object.keys(k)[0]))
-    .sort(
-      (a, b) => match(Object.keys(a)[0], name) - match(Object.keys(b)[0], name)
-    );
-}
-
-suggestName({
-  name: "ver",
-  files: parsedSvgPorn,
-});
