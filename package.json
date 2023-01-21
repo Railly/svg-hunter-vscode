@@ -1,13 +1,15 @@
 {
   "name": "svg-hunter",
-  "displayName": "svg-hunter",
-  "description": "Hunt SVGs inside your code editor",
+  "displayName": "SVG Hunter",
+  "publisher": "RaillyHugo",
+  "description": "Hunt SVGs without leaving your code editor",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.74.0"
+    "vscode": "^1.70.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Snippets"
   ],
   "activationEvents": [
     "onCommand:svg-hunter.insertSvgHtml",
@@ -34,14 +36,25 @@
       }
     ]
   },
+  "keywords": [
+    "svg",
+    "svgr",
+    "hunter",
+    "react",
+    "jsx",
+    "html",
+    "icons",
+    "logos"
+  ],
+  "icon": "icon.png",
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "update-data": "bash ./scripts/update-data.sh",
-    "vscode:prepublish": "npm run update-data && npm run compile"
+    "update": "bash ./scripts/update.sh",
+    "prepublish": "npm run update && npm run compile && node ./out/transform-data.js"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.0",
