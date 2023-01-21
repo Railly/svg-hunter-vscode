@@ -1,31 +1,24 @@
 import * as vscode from "vscode";
-import { SvgHunterProvider } from "./provider";
+import { SvgHunterProvider } from "./provider.js";
 
 export function activate(context: vscode.ExtensionContext) {
   const provider = new SvgHunterProvider(context.extensionUri);
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("svg-hunter.openView", () => {
-      provider.openView();
+    vscode.commands.registerCommand("svg-hunter.insertSvgHtml", () => {
+      provider.insertSvgHtml();
     })
   );
 
-  // with createQuickPick
   context.subscriptions.push(
-    vscode.commands.registerCommand("svg-hunter.openViewWithQuickPick", () => {
-      const quickPick = vscode.window.createQuickPick();
-      quickPick.items = [
-        {
-          label: "Open SVG Hunter",
-          description: "Open SVG Hunter",
-        },
-      ];
-      quickPick.onDidChangeSelection((selection) => {
-        if (selection[0].label === "Open SVG Hunter") {
-          provider.openView();
-        }
-      });
-      quickPick.show();
+    vscode.commands.registerCommand("svg-hunter.insertRawJsxSvg", () => {
+      provider.insertRawJsxSvg();
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("svg-hunter.createJsxSvgComponent", () => {
+      provider.createJsxSvgComponent();
     })
   );
 }
