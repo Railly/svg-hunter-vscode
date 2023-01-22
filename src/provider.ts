@@ -128,7 +128,6 @@ export class SvgHunterProvider {
             .then((buffer) => {
               return buffer.toString();
             });
-          console.log({ fileContent });
           callback(selection, Promise.resolve(fileContent));
         });
         subQuickPick.show();
@@ -144,10 +143,6 @@ export class SvgHunterProvider {
     name: string;
     url: string;
   }): Promise<string> {
-    console.log({
-      url,
-      name,
-    });
     return new Promise((resolve, reject) => {
       axios
         .get(`${url}/${name}`)

@@ -2,9 +2,9 @@ import memoize = require("lodash.memoize");
 import { parsedSvgPorn } from "./data/svg-porn-parsed";
 
 export const getPascalCasedName = (name: string) => {
-  const cleanName = name.replace(".svg", "").replace("-icon", "");
-  const camelCasedName = cleanName
-    .split("-")
+  console.log({ name }, name.split("-"));
+  const camelCasedName = name
+    .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join("");
 
