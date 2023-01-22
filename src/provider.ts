@@ -45,11 +45,11 @@ export class SvgHunterProvider {
     if (typeof suggested !== "string") {
       quickPick.items = suggested
         .map((item) => {
-          const description = Object.keys(item)[0];
-          return item[description].map((item) => {
+          const name = Object.keys(item)[0];
+          return item[name].map((item) => {
             return {
-              label: item,
-              description,
+              label: name,
+              description: item,
             };
           });
         })
@@ -117,10 +117,6 @@ export class SvgHunterProvider {
         );
         const subQuickPick = vscode.window.createQuickPick();
         subQuickPick.items = files.map((file) => {
-          // const workspacePath =
-          //   vscode.workspace.getWorkspaceFolder(file)?.uri.path || "";
-          // const hasMoreThanOneWorkspace =
-          //   vscode.workspace.workspaceFolders?.length > 1;
           return {
             label: getStringAfterLastSlash(file.path),
             description: file.path,
