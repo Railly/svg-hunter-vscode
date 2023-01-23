@@ -65,7 +65,7 @@ export class SvgHunterProvider {
 
     quickPick.onDidChangeSelection((selection) => {
       optionSelected = true;
-      // quickPick.hide();
+      quickPick.hide();
       if (!selection[0].description) {
         return;
       }
@@ -92,6 +92,7 @@ export class SvgHunterProvider {
           await callback(selection, svgRes);
 
           progress.report({ increment: 100, message: "Done!" });
+          optionSelected = false;
         }
       );
     });

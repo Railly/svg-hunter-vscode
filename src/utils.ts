@@ -1,5 +1,4 @@
 import memoize = require("lodash.memoize");
-import { parsedSvgPorn } from "./data/svg-porn-parsed";
 
 export const getPascalCasedName = (name: string) => {
   // Support "Hello world wy friend" or "hello-world-wy-friend.svg"
@@ -9,7 +8,6 @@ export const getPascalCasedName = (name: string) => {
     .replace(/[^a-zA-Z-]/g, "")
     .replace(/ /g, "-");
 
-  console.log({ cleanName });
   const pascalCasedName = cleanName
     .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
