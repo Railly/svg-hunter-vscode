@@ -2,21 +2,24 @@ import memoize = require("lodash.memoize");
 import { parsedSvgPorn } from "./data/svg-porn-parsed";
 
 export const getPascalCasedName = (name: string) => {
-  console.log({ name }, name.split("-"));
-  const camelCasedName = name
-    .split(" ")
+  // Support "Hello world wy friend" or "hello-world-wy-friend.svg"
+  const cleanName = name
+    .replace(/.svg/g, "")
+    .replace(/icon/g, "")
+    .replace(/[^a-zA-Z-]/g, "")
+    .replace(/ /g, "-");
+
+  console.log({ cleanName });
+  const pascalCasedName = cleanName
+    .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join("");
 
-  return camelCasedName;
+  return pascalCasedName;
 };
 
 export const addNewLineAfterSemi = (str: string) => {
-  return str.slice(0, -1).replace(
-    /;/g,
-    `;
-`
-  );
+  return str;
 };
 
 export const deleteFirstAndLastLine = (str: string) => {
@@ -27,10 +30,6 @@ export const deleteFirstAndLastLine = (str: string) => {
     )
     .slice(2, -3).join(`
 `);
-};
-
-export const deletePropsWithCurlyBrackets = (str: string) => {
-  return str.replace(/{.*}/, "");
 };
 
 export const getStringAfterLastSlash = (url: string) => {

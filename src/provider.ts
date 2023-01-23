@@ -11,7 +11,6 @@ import {
 import {
   addNewLineAfterSemi,
   deleteFirstAndLastLine,
-  deletePropsWithCurlyBrackets,
   getPascalCasedName,
   getStringAfterLastSlash,
   suggestName,
@@ -28,7 +27,7 @@ export class SvgHunterProvider {
     svgData,
     url,
   }: {
-    callback: (selection: any, svgRes: Promise<string>) => void;
+    callback: (selection: any, svgRes: Promise<string>) => Promise<void>;
     svgData: any;
     url: string;
   }) {
@@ -62,17 +61,39 @@ export class SvgHunterProvider {
         },
       ];
     }
+    let optionSelected = false;
 
     quickPick.onDidChangeSelection((selection) => {
+      optionSelected = true;
+      // quickPick.hide();
       if (!selection[0].description) {
         return;
       }
-      const svgRes = this.getSvg({
-        name: selection[0].description,
-        url,
-      });
+      vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: "Fetching SVG",
+          cancellable: false,
+        },
+        async (progress, token) => {
+          token.onCancellationRequested(() => {
+            console.log("User canceled the long running operation");
+          });
 
-      callback(selection, svgRes);
+          progress.report({ increment: 0 });
+
+          const svgRes = this.getSvg({
+            name: selection[0].description,
+            url,
+          });
+
+          progress.report({ increment: 50 });
+
+          await callback(selection, svgRes);
+
+          progress.report({ increment: 100, message: "Done!" });
+        }
+      );
     });
     quickPick.show();
   }
@@ -81,7 +102,7 @@ export class SvgHunterProvider {
     callback: (
       selection: readonly vscode.QuickPickItem[],
       svgRes: Promise<string>
-    ) => void
+    ) => Promise<void>
   ) {
     const quickPick = vscode.window.createQuickPick();
     quickPick.placeholder = "Select a source";
@@ -162,6 +183,7 @@ export class SvgHunterProvider {
           new vscode.SnippetString(svgCode)
         );
       });
+      return Promise.resolve();
     });
   }
 
@@ -178,16 +200,17 @@ export class SvgHunterProvider {
               "@svgr/plugin-jsx",
               "@svgr/plugin-prettier",
             ],
+            expandProps: false,
           },
           { componentName: `${pascalCasedName}Icon` }
         ).then((jsCode) => {
           vscode.window.activeTextEditor?.insertSnippet(
-            new vscode.SnippetString(
-              deleteFirstAndLastLine(deletePropsWithCurlyBrackets(jsCode))
-            )
+            new vscode.SnippetString(deleteFirstAndLastLine(jsCode))
           );
         });
       });
+
+      return Promise.resolve();
     });
   }
 
@@ -212,6 +235,7 @@ export class SvgHunterProvider {
           );
         });
       });
+      return Promise.resolve();
     });
   }
 }
