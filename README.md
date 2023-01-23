@@ -15,6 +15,31 @@
 2. Search for `svg-hunter`
 3. Select `SVG Hunter` and click **Install**
 
+## Features
+
+- Search for SVGs on external or local sources.
+  - Local (SVGs in your project folder)
+  - External
+    - [SVG Porn](https://www.svgporn.com/): Tech logos
+    - Feel free to suggest more sources.
+- Insert SVG as plain HTML.
+- Insert SVG as JSX.
+- Create a new JSX Component from SVG.
+- Copy SVG to clipboard. (WIP)
+
+> **Note**
+> We only support one external provider at the moment. If you want to suggest more, please open an issue. Anyway, we are going to add more providers in the near future.
+
+## Commands (3)
+
+- Open Command Palette `Ctrl+Shift+P` or `Cmd+Shift+P` and type `svg-hunter`
+
+| Command                    | Description                                      |
+| -------------------------- | ------------------------------------------------ |
+| svg-hunter.insertSvgHtml   | SVG Hunter: Insert SVG as plain HTML.            |
+| svg-hunter.insertRawJsxSvg | SVG Hunter: Insert SVG as JSX.                   |
+| createJsxSvgComponent      | SVG Hunter: Create a new JSX Component from SVG. |
+
 ## Support my work
 
 <a href="https://www.buymeacoffee.com/raillyhugo" target="_blank">
