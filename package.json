@@ -3,7 +3,7 @@
   "displayName": "SVG Hunter",
   "publisher": "RaillyHugo",
   "description": "Hunt SVGs without leaving your code editor",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.70.0"
   },
@@ -14,7 +14,10 @@
   "activationEvents": [
     "onCommand:svg-hunter.insertSvgHtml",
     "onCommand:svg-hunter.insertRawJsxSvg",
-    "onCommand:svg-hunter.createJsxSvgComponent"
+    "onCommand:svg-hunter.createJsxSvgComponent",
+    "onCommand:svg-hunter.transformSelectedSvgToJsx",
+    "onCommand:svg-hunter.copyJsxSvgComponent",
+    "onCommand:svg-hunter.copyPlainJsxSvg"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -26,15 +29,49 @@
       },
       {
         "command": "svg-hunter.insertRawJsxSvg",
-        "category": "SVG Hunter",
-        "title": "Insert SVG as JSX"
+        "title": "SVG Hunter: Insert SVG as JSX"
       },
       {
         "command": "svg-hunter.createJsxSvgComponent",
-        "category": "SVG Hunter",
-        "title": "Create new JSX component from SVG"
+        "title": "SVG Hunter: Create new JSX component from SVG"
+      },
+      {
+        "command": "svg-hunter.transformSelectedSvgToJsx",
+        "title": "SVG Hunter: Transform SVG to JSX",
+        "enablement": "editorHasSelection"	
+      },
+      {
+        "command": "svg-hunter.copyJsxSvgComponent",
+        "title": "SVG Hunter: Copy JSX component to clipboard",
+        "enablement": "resourceExtname == .svg"
+      },
+      {
+        "command": "svg-hunter.copyPlainJsxSvg",
+        "title": "SVG Hunter: Copy plain JSX to clipboard",
+        "enablement": "resourceExtname == .svg"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "svg-hunter.transformSelectedSvgToJsx",
+          "when": "editorHasSelection",
+          "group": "svg-hunter"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "svg-hunter.copyJsxSvgComponent",
+          "when": "resourceExtname == .svg",
+          "group": "svg-hunter"
+        },
+        {
+          "command": "svg-hunter.copyPlainJsxSvg",
+          "when": "resourceExtname == .svg",
+          "group": "svg-hunter"
+        }
+      ]
+    }
   },
   "keywords": [
     "svg",
