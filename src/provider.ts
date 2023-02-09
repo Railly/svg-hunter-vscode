@@ -239,4 +239,62 @@ export class SvgHunterProvider {
       return Promise.resolve();
     });
   }
+  public async transformSelectedSvgToJsx() {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      return;
+    }
+    const selection = editor.selection;
+    const text = editor.document.getText(selection);
+    transform(
+      text,
+      {
+        icon: true,
+        plugins: [
+          "@svgr/plugin-svgo",
+          "@svgr/plugin-jsx",
+          "@svgr/plugin-prettier",
+        ],
+        expandProps: false,
+      },
+      { componentName: "Icon" }
+    ).then((jsCode) => {
+      editor.edit((editBuilder) => {
+        editBuilder.replace(selection, deleteFirstAndLastLine(jsCode));
+      });
+    });
+  }
+  public async copyJsxSvg(uri: vscode.Uri, type: "component" | "plain") {
+    const fileContent = uri?.path
+      ? await vscode.workspace.fs.readFile(uri)
+      : await vscode.workspace.fs.readFile(
+          vscode.window.activeTextEditor?.document.uri!
+        );
+
+    const fileName = getStringAfterLastSlash(
+      uri?.path || vscode.window.activeTextEditor?.document.uri.path!
+    );
+
+    const pascalCasedName = getPascalCasedName(fileName);
+
+    transform(
+      fileContent.toString(),
+      {
+        icon: true,
+        plugins: [
+          "@svgr/plugin-svgo",
+          "@svgr/plugin-jsx",
+          "@svgr/plugin-prettier",
+        ],
+        expandProps: type === "component" ? true : false,
+      },
+      { componentName: `${pascalCasedName}Icon` }
+    ).then((jsCode) => {
+      vscode.env.clipboard.writeText(
+        type === "component"
+          ? addNewLineAfterSemi(jsCode)
+          : deleteFirstAndLastLine(jsCode)
+      );
+    });
+  }
 }
