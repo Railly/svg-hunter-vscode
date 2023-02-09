@@ -15,30 +15,31 @@
 2. Search for `svg-hunter`
 3. Select `SVG Hunter` and click **Install**
 
+> **Note**
+> We only support one external provider at the moment. If you want to suggest more, please open an issue. Anyway, we are going to add more providers in the near future.
+
 ## Features
 
-- Search for SVGs on external or local sources.
+- Search for SVGs on external or local sources and insert them as HTML, JSX Component or raw JSX.
   - Local (SVGs in your project folder)
   - External
     - [SVG Porn](https://www.svgporn.com/): Tech logos
     - Feel free to suggest more sources.
-- Insert SVG as plain HTML.
-- Insert SVG as JSX.
-- Create a new JSX Component from SVG.
-- Copy SVG to clipboard. (WIP)
+- Transform selected SVG to raw JSX / JSX Component.
+- Copy SVG to clipboard as raw JSX / JSX Component.
 
-> **Note**
-> We only support one external provider at the moment. If you want to suggest more, please open an issue. Anyway, we are going to add more providers in the near future.
-
-## Commands (3)
+## Commands (6)
 
 - Open Command Palette `Ctrl+Shift+P` or `Cmd+Shift+P` and type `svg-hunter`
 
-| Command                    | Description                                      |
-| -------------------------- | ------------------------------------------------ |
-| svg-hunter.insertSvgHtml   | SVG Hunter: Insert SVG as plain HTML.            |
-| svg-hunter.insertRawJsxSvg | SVG Hunter: Insert SVG as JSX.                   |
-| createJsxSvgComponent      | SVG Hunter: Create a new JSX Component from SVG. |
+| Command                                     | Description                                         |
+| ------------------------------------------- | --------------------------------------------------- |
+| svg-hunter.insertSvgAsHtml                  | SVG Hunter: Insert SVG as HTML.                     |
+| svg-hunter.insertSvgAsRawJsx                | SVG Hunter: Insert SVG as raw JSX.                  |
+| svg-hunter.insertSvgAsJsxComponent          | SVG Hunter: Insert SVG as JSX Component.            |
+| svg-hunter.transformSelectedSvgToJsx        | SVG Hunter: Transform selected SVG to JSX.          |
+| svg-hunter.copySvgAsJsxComponentToClipboard | SVG Hunter: Copy SVG as JSX Component to clipboard. |
+| svg-hunter.copySvgAsRawJsxToClipboard       | SVG Hunter: Copy SVG as raw JSX to clipboard.       |
 
 ## Support my work
 

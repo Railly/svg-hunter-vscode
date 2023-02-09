@@ -42,12 +42,12 @@
       },
       {
         "command": "svg-hunter.copyJsxSvgComponent",
-        "title": "SVG Hunter: Copy JSX component to clipboard",
+        "title": "SVG Hunter: Copy SVG as JSX Component to clipboard",
         "enablement": "resourceExtname == .svg"
       },
       {
         "command": "svg-hunter.copyPlainJsxSvg",
-        "title": "SVG Hunter: Copy plain JSX to clipboard",
+        "title": "SVG Hunter: Copy SVG as raw JSX to clipboard",
         "enablement": "resourceExtname == .svg"
       }
     ],
